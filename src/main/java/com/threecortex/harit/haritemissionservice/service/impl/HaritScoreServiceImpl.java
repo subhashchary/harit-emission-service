@@ -589,7 +589,7 @@ public class HaritScoreServiceImpl implements HaritScoreService {
 		 List<RiskEvalSubCategoryResponseDTO> riskSubList=null;
 		try {
 			riskevalList=new ArrayList<>();
-			riskSubList=new ArrayList<>();
+			
 			RiskEvalExecution riskEvalExecution = riskEvalExecutionRepository
 					.findTopByEntityIdAndEvalSetIdAndEntityIngestionIdAndTemplateIdOrderByRunIdDesc(
 							entityId, evalSetId,
@@ -618,9 +618,13 @@ public class HaritScoreServiceImpl implements HaritScoreService {
 			
 		Map<Long, List<RiskEvalDTO>> groupByList=	riskevalList.stream().collect(Collectors.groupingBy(RiskEvalDTO::getRiskCategoryId,Collectors.toList()));
 		Map<Long, Double> sumGroupby=	riskevalList.stream().collect(Collectors.groupingBy(RiskEvalDTO::getRiskCategoryId,Collectors.summingDouble(RiskEvalDTO::getScore)));
-		
+	//	groupByList.entrySet()
 		for(Map.Entry<Long, List<RiskEvalDTO>> entrySet:groupByList.entrySet()) {
-			List<RiskEvalDTO> list=entrySet.getValue();
+			
+			
+			List<RiskEvalDTO> list=groupByList.get(entrySet.getKey());
+			
+			
 		//	entrySet
 			RiskParamMaster riskParamMaster=riskParamMasterRepo.findByRiskCategoryId(entrySet.getKey());
 			
@@ -637,6 +641,7 @@ public class HaritScoreServiceImpl implements HaritScoreService {
 			 
 			
 		for(RiskEvalDTO riskEvalDTO:list) {
+			riskSubList=new ArrayList<>();
 			subRiskParamMaster = subRiskParamMasterRepo.findById( riskEvalDTO.getSubCategoryId())
 					.get();
 			 RiskEvalSubCategoryResponseDTO subCatResposnse=new RiskEvalSubCategoryResponseDTO();
